@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Grails JSON API versioning demo</title>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+</head>
+<body>
+	<div role="main" class="container">
+		<h1>Grails JSON API versioning demo</h1>
+		<p class="lead">
+			Same data serialized in different API versions - see the domain class source code
+			annotations for definitions of 'detailedInformation' and 'userSettings' APIs.
+		</p>
+		
+		<h2>Default JSON renderer</h2>
+		<pre>{
+   "id": 1,
+   "email": "nelson@example.org",
+   "pets": [
+      {
+         "id": 2,
+         "class": "Pet"
+      },
+      {
+         "id": 1,
+         "class": "Pet"
+      },
+      {
+         "id": 3,
+         "class": "Pet"
+      }
+   ],
+   "screenName": "Nelson",
+   "class": "User",
+   "twitterUsername": "nelsonIsGod"
+}</pre>
+		
+		<h2>'deep' JSON renderer (included in Grails)</h2>
+		<pre>{
+   "id": 1,
+   "email": "nelson@example.org",
+   "pets": [
+      {
+         "id": 2,
+         "numberOfLegs": 8,
+         "name": "Spidey",
+         "class": "Pet",
+         "user": {
+            "_ref": "../..",
+            "class": "User"
+         }
+      },
+      {
+         "id": 1,
+         "numberOfLegs": 4,
+         "name": "Rover",
+         "class": "Pet",
+         "user": {
+            "_ref": "../..",
+            "class": "User"
+         }
+      },
+      {
+         "id": 3,
+         "numberOfLegs": 0,
+         "name": "Venom",
+         "class": "Pet",
+         "user": {
+            "_ref": "../..",
+            "class": "User"
+         }
+      }
+   ],
+   "screenName": "Nelson",
+   "class": "User",
+   "twitterUsername": "nelsonIsGod"
+}</pre>
+		
+		<h2>detailedInformation API (custom defined API via domain model annotations)</h2>
+		<pre>{
+   "id": 1,
+   "pets": [
+      {
+         "id": 2,
+         "numberOfLegs": 8,
+         "name": "Spidey"
+      },
+      {
+         "id": 1,
+         "numberOfLegs": 4,
+         "name": "Rover"
+      },
+      {
+         "id": 3,
+         "numberOfLegs": 0,
+         "name": "Venom"
+      }
+   ],
+   "screenName": "Nelson",
+   "twitterUsername": "nelsonIsGod"
+}</pre>
+		
+		<h2>Custom defined userSettings API (custom defined API via domain model annotations)</h2>
+		<pre>{
+   "id": 1,
+   "email": "nelson@example.org",
+   "screenName": "Nelson",
+   "twitterUsername": "nelsonIsGod"
+}</pre>
+	</div>
+</body>
+</html>
