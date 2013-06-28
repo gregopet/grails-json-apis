@@ -12,5 +12,11 @@ class BootStrap {
 			}
 		}
 		
+		//some demo data to populate our view..
+		def person = new User(screenName:'Nelson', email:'nelson@example.org', twitterUsername: 'nelsonIsGod')
+		person.addToPets(name: 'Rover', numberOfLegs: 4)
+		person.addToPets(name: 'Spidey', numberOfLegs: 8)
+		person.addToPets(name: 'Venom', numberOfLegs: 0)
+		person.save(failOnError:true)
 	}
 }
