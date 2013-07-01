@@ -7,10 +7,19 @@ been warned!)*
 
 The goal of this plugin is to help convert Grails domain classes into various
 JSON representations needed in different parts of your web application or to 
-support various API versions. It avoids circular object graph problems (by relaying
-that responsibility to you, ha!) and does not require developers to write `Map`
-producing`toAPI` methods of various complexities. Under the hood it uses the Grails
-`ObjectMarshaller` mechanism.
+support various API versions. 
+
+Features:
+
+ - Allows you to declare multiple named JSON configurations for different use cases
+ - Configuration is very straightforward: all that is required is to mark domain class
+   properties with a single annotation naming the configurations under which that 
+   property should be included in the serialized JSON object
+ - Works for collections as well as `belongsTo` properties
+ - Enables developers to avoid the circular object reference problem elegantly by
+   defining appopriate namespaces - this way it is possible to start the serialization
+   either in a parent or child entity, depending on the use case
+ - Uses the Grails' `ObjectMarshaller` mechanism under the hood
 
 ## Example of use
 
@@ -57,11 +66,9 @@ Github and check the output of the single action [here](https://rawgithub.com/gr
 
 ## Future plans
 
-As this plugin was the result of a single hacking session the first plan is to look at the code
-with fresh eyes. Then write some unit tests :) And after that to find all the corner cases in
-which the current implementation wouldn't work - the only limitation I am currently aware
-of is that non automatically generated getters and transient properties don't yet work,
-but I am sure there will be others.
+Find all the corner cases in which the current implementation wouldn't work - the only
+limitation I am currently aware of is that non automatically generated getters and 
+transient properties don't yet work, but I am sure there will be others.
 
 Then further in the future an API documenting script would be nice, producing charts or 
 markdown docs from the data contained in the annotation(s).
