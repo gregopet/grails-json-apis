@@ -14,10 +14,18 @@ class User {
 	
 	@Api('userSettings')
 	String email
+	String getEmail() {
+		"${screenName}<${email}>"
+	}
 	
-	@Api(['userSettings', 'detailedInformation'])
+	@Api(['userSettings', 'detailedInformation', 'social'])
 	String twitterUsername
 	
-	@Api('detailedInformation')
+	@Api(['detailedInformation', 'userSettings'])
 	Set pets
+	
+	@Api('detailedInformation')
+	Integer getNumberOfTicklyAnimals() {
+		Pets.countAllWhereIsLikesTickling()
+	}
 }
