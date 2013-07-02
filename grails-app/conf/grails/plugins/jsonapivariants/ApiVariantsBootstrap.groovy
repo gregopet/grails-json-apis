@@ -1,4 +1,6 @@
-class BootStrap {
+package grails.plugins.jsonapivariants
+
+class ApiVariantsBootStrap {
 	def grailsApplication
 	
 	def init = {servletContext ->
