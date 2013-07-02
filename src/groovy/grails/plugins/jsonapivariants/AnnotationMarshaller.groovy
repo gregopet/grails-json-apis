@@ -1,4 +1,5 @@
 package grails.plugins.jsonapivariants
+import groovy.util.logging.Log
 import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
@@ -10,6 +11,7 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
  * instance is generated for each domain class - api namespace combo.
  * It also contains static helper methods to help with reflection.
  */
+@Log
 class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	protected final DefaultGrailsDomainClass forClass
 	protected final List<GrailsDomainClassProperty> propertiesToSerialize
@@ -26,6 +28,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace}
 			}
 		}
+		log.info "Found following JSON namespaces: ${namespaces.join(', ')}"
 		return namespaces
 	}
 	
