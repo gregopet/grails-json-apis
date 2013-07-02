@@ -87,4 +87,12 @@ class AnnotationMarshallerSpec extends grails.plugin.spock.IntegrationSpec {
 		then:
 		toJsonAndBack(roger).email == roger.getEmail()
 	}
+	
+	def "Marshaller should work for getters not backed by a Grails field"() {
+		when:
+		JSON.use("detailedInformation")
+		
+		then:
+		toJsonAndBack(roger).numberOfTicklyAnimals == roger.pets.count { it.likesTickling }
+	}
 }

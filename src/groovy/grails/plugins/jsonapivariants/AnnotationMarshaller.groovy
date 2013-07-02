@@ -4,7 +4,6 @@ import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 
-
 /**
  * This class implements the JSON serialization of domain objects
  * according to the annotations declared on these objects. A new
@@ -23,13 +22,25 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	static Set getAllApiNames(domainClasses) {
 		def namespaces = new HashSet<String>()
 		domainClasses.each { domainClass ->
-			domainClass.clazz.declaredFields.each { field ->
-				def declaredNamespaces = field.getAnnotation(Api)?.value()
-				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace}
+			domainClass.properties.each { groovyProperty ->
+				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )
+				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace }
 			}
 		}
 		log.info "Found following JSON namespaces: ${namespaces.join(', ')}"
 		return namespaces
+	}
+	
+	/**
+	 * Finds the method or field corresponding to a Groovy property name.
+	 */
+	private static getPropertyAnnotationValue(Class clazz, String propertyName) {
+		while (clazz) {
+			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() } 
+			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(Api)?.value()
+			else clazz = clazz.superclass
+		}
+		return null
 	}
 	
 	/**
@@ -40,13 +51,9 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 */
 	public AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
-		this.propertiesToSerialize = []
-		def inspectedClass = matchedDomainClass.clazz
-		while (inspectedClass) {
-			inspectedClass.declaredFields
-				.findAll{ it.getAnnotation(Api)?.value()?.size() == 0 || it.getAnnotation(Api)?.value()?.contains(namespace) }
-				.each { propertiesToSerialize << forClass.getPropertyByName(it.name) }
-			inspectedClass = inspectedClass.superclass
+		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
+			def annotationValue = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
+			return annotationValue?.size() == 0 || annotationValue?.contains(namespace)
 		}
 	}
 	
