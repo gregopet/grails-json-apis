@@ -26,6 +26,6 @@ class User {
 	
 	@Api('detailedInformation')
 	Integer getNumberOfTicklyAnimals() {
-		Pets.countAllWhereIsLikesTickling()
+		pets.count { it.likesTickling }
 	}
 }
