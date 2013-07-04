@@ -1,3 +1,6 @@
+import grails.converters.JSON
+import grails.plugins.jsonapivariants.AnnotationMarshaller
+
 class JsonApiVariantsGrailsPlugin {
     def version = "0.1"
     def grailsVersion = "2.0 > *"
@@ -28,5 +31,13 @@ graph.
     def scm = [ url: "https://github.com/gregopet/grails-json-api-variants" ]
 
     def doWithApplicationContext = { applicationContext ->
+        //Generate and register the required ObjectMarshaller instances.
+        AnnotationMarshaller.getAllApiNames(application.domainClasses).each { namespace ->
+            JSON.createNamedConfig(namespace) { JSON ->
+                for (domainClass in application.domainClasses) {
+                    JSON.registerObjectMarshaller(new AnnotationMarshaller<JSON>(domainClass, namespace))
+                }
+            }
+        }
     }
 }
