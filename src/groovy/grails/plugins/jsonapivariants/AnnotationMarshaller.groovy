@@ -1,8 +1,10 @@
 package grails.plugins.jsonapivariants
+
 import groovy.util.logging.Log
-import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
+
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 
 /**
  * This class implements the JSON serialization of domain objects
@@ -14,13 +16,13 @@ import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	protected final DefaultGrailsDomainClass forClass
 	protected final List<GrailsDomainClassProperty> propertiesToSerialize
-	
+
 	/**
 	 * Finds all API names defined in all domain classes.
 	 * @return A set of all found namespace names.
 	 */
 	static Set getAllApiNames(domainClasses) {
-		def namespaces = new HashSet<String>()
+		Set namespaces = []
 		domainClasses.each { domainClass ->
 			domainClass.properties.each { groovyProperty ->
 				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )
@@ -30,49 +32,48 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 		log.info "Found following JSON namespaces: ${namespaces.join(', ')}"
 		return namespaces
 	}
-	
+
 	/**
 	 * Finds the method or field corresponding to a Groovy property name.
 	 */
 	private static getPropertyAnnotationValue(Class clazz, String propertyName) {
 		while (clazz) {
-			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() } 
+			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() }
 			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(Api)?.value()
 			else clazz = clazz.superclass
 		}
 		return null
 	}
-	
+
 	/**
-	 * Constructor: constructs a new marshaller for a given domain class - namespace
-	 * combo.
+	 * Constructor: constructs a new marshaller for a given domain class - namespace combo.
 	 * @param matchedDomainClass A grails domain class descriptor for which we are registering this marshaller.
 	 * @param namespace Name of the namespace for which we are registering this marshaller.
 	 */
-	public AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
+	AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
 		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
 			def annotationValue = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
-			return annotationValue?.size() == 0 || annotationValue?.contains(namespace)
+			return !annotationValue || annotationValue.contains(namespace)
 		}
 	}
-	
+
 	/**
 	 * Returns true if the given object can be serialized by this marshaller
 	 * instance. Part of the ObjectMarshaller interface.
 	 * @param object The object we are querying about.
 	 */
-	public boolean supports (Object object) {
+	boolean supports(object) {
 		return object.class.isAssignableFrom(forClass.clazz)
 	}
-	
+
 	/**
 	 * Marshalls a given object according to the rules of the API namespace
 	 * for which this marshaller was created. Part of the ObjectMarshaller inteface.
 	 * @param object The object we are serializing.
 	 * @param converter The converter instance that is performing the serialization.
 	 */
-	public void marshalObject(Object object, T converter) {
+	void marshalObject(object, T converter) {
 		converter.build {
 			"${forClass.identifier.name}"(object.ident()) //always put the ID property into the object..
 			for (prop in propertiesToSerialize) {
