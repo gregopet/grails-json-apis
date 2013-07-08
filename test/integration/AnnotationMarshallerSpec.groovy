@@ -1,4 +1,5 @@
 import grails.converters.JSON
+import grails.web.JSONBuilder
 import grails.plugin.spock.IntegrationSpec
 
 // @TestFor(User)
@@ -93,11 +94,30 @@ class AnnotationMarshallerSpec extends IntegrationSpec {
 		then:
 		toJsonAndBack(roger).numberOfTicklyAnimals == roger.pets.count { it.likesTickling }
 	}
+	
 	def "Marshaller should work on properties defined in a superclass"() {
 		when:
 		JSON.use("detailedInformation")
 		
 		then:
 		toJsonAndBack(roger).pets.find { it.licenceNumber }.name
+	}
+	
+	def "Marshaller should work on objects rendered by a JSONBuilder"() {
+		when:
+		JSON.use("userSettings")
+		def serializedObj = new JSONBuilder().build {
+			owner = roger
+			pet = roger.pets.first()
+		}
+		def response = JSON.parse(serializedObj.toString());
+		
+		then:
+		response.owner.twitterUsername
+		!response.owner.numberOfTicklyAnimals
+		response.pet.likesTickling != null
+		!response.pet.numberOfLegs
+		
+	
 	}
 }
