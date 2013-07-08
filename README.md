@@ -19,7 +19,7 @@ Features:
  - Enables developers to avoid the circular object reference problem elegantly by
    defining appopriate namespaces - this way it is possible to start the serialization
    either in a parent or child entity, depending on the use case
- - Works for objects serialized inside a JSON builder
+ - Works for objects serialized inside a [JSON builder](http://grails.org/doc/latest/guide/theWebLayer.html#moreOnJSONBuilder)
  - Uses the Grails' `ObjectMarshaller` mechanism under the hood
 
 ## Example of use
@@ -54,11 +54,30 @@ static hasMany = [
 Set pets
 ```
 
-Api configurations work across the whole object graph automatically so in the above
-example any `Pet` domain property not annotated to appear in the `detailedInformation`
-configuration wouldn't be rendered. The datastore identity property is always included
-in all APIs automatically so if you had forgotten to put any `Api` annotations into the
-`Pet` class you would only get a list of IDs.
+In order to mark `belongsTo` properties with the `Api` annotation, declare them explicitly:
+
+```groovy
+static belongsTo = [
+	user:User
+]
+
+@Api('petDetails') 
+User user
+```
+
+Works with JSONBuilder, too:
+
+```groovy
+render(contentType: "text/json") {
+    user = User.first()
+    pet = Pet.first()
+}
+```
+
+The selected api configurations work across the whole object graph automatically. The 
+datastore identity property is always included in all APIs automatically so for
+example if you had forgotten to put any `Api` annotations into the `Pet` class
+you would only get a list of IDs.
 
 ## Demo
 
@@ -67,9 +86,6 @@ Github and check the output of the single action [here](https://rawgithub.com/gr
 
 ## Future plans
 
-Find all the corner cases in which the current implementation wouldn't work - the only
-limitation I am currently aware of is that non automatically generated getters and 
-transient properties don't yet work, but I am sure there will be others.
-
-Then further in the future an API documenting script would be nice, producing charts or 
+Find all the corner cases in which the current implementation wouldn't work. Then further
+in the future an API documenting script would be nice, producing charts or 
 markdown docs from the data contained in the annotation(s).
