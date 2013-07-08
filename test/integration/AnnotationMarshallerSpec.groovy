@@ -7,7 +7,7 @@ class AnnotationMarshallerSpec extends IntegrationSpec {
 
 	def setup() {
 		roger = new User(email: 'roger@roger.com', screenName: 'Roger', twitterUsername:'RogerRocks')
-		roger.addToPets(name:'spikey', numberOfLegs: 8, likesTickling: false)
+		roger.addToPets new ViciousPet(name:'spikey', numberOfLegs: 8, likesTickling: false, licenceNumber: 123)
 		roger.addToPets(name:'rover', numberOfLegs: 4, likesTickling: true)
 	}
 
@@ -92,5 +92,12 @@ class AnnotationMarshallerSpec extends IntegrationSpec {
 
 		then:
 		toJsonAndBack(roger).numberOfTicklyAnimals == roger.pets.count { it.likesTickling }
+	}
+	def "Marshaller should work on properties defined in a superclass"() {
+		when:
+		JSON.use("detailedInformation")
+		
+		then:
+		toJsonAndBack(roger).pets.find { it.licenceNumber }.name
 	}
 }
