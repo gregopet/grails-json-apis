@@ -1,7 +1,5 @@
 grails-json-api-variants
 ========================
-*(this project is still in alpha stage and may never leave it - you've
-been warned!)*
 
 ## Grails plugin for managing multiple JSON api variants using domain class annotations
 
@@ -24,9 +22,13 @@ Features:
 
 ## Example of use
 
-Several API variants can be easily defined in domain classes:
+Several API variants can be easily defined in domain classes. Marking a property with the `Api` annotation but providing no API name will
+include that property in all APIs:
 
 ```groovy
+@Api
+String screenName
+
 @Api('userSettings')
 String email
 
@@ -35,16 +37,14 @@ String twitterUsername
 ```
 
 Then in the controller one can call the desired named Api configuration to get only
-the fields defined for that API:
+the fields defined for that API. 
 
 ```groovy
 JSON.use("userSettings")
 render person as JSON
 ```
 
-Marking a property with the `Api` annotation but providing no API name will
-include that property in all APIs. It works for collections, too (but be careful
-not to create circular paths):
+It works for collections, too (but be careful not to create circular paths):
 
 ```groovy
 static hasMany = [
@@ -65,9 +65,10 @@ static belongsTo = [
 User user
 ```
 
-Works with JSONBuilder, too:
+JSONBuilder is supported, too:
 
 ```groovy
+JSON.use("userSettings")
 render(contentType: "text/json") {
     user = User.first()
     pet = Pet.first()
@@ -79,10 +80,6 @@ datastore identity property is always included in all APIs automatically so for
 example if you had forgotten to put any `Api` annotations into the `Pet` class
 you would only get a list of IDs.
 
-## Demo
-
-You can clone this repository and `run-app` it or just browse the domain classcode on
-Github and check the output of the single action [here](https://rawgithub.com/gregopet/grails-json-api-variants/master/demo-output.html).
 
 ## Future plans
 
