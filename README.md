@@ -19,6 +19,7 @@ Features:
  - Enables developers to avoid the circular object reference problem elegantly by
    defining appopriate namespaces - this way it is possible to start the serialization
    either in a parent or child entity, depending on the use case
+ - Works for objects serialized inside a JSON builder
  - Uses the Grails' `ObjectMarshaller` mechanism under the hood
 
 ## Example of use
