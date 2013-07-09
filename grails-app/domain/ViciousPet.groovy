@@ -1,8 +1,8 @@
-import grails.plugins.jsonapivariants.Api
+import grails.plugins.jsonapivariants.JsonApi
 
 class ViciousPet extends Pet {
 	
-	@Api('detailedInformation')
+	@JsonApi('detailedInformation')
 	Integer licenceNumber
 
 }

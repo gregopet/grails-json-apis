@@ -22,25 +22,25 @@ Features:
 
 ## Example of use
 
-Several API variants can be easily defined in domain classes. Marking a property with the `Api` annotation but providing no API name will
+Several API variants can be easily defined in domain classes. Marking a property with the `JsonApi` annotation but providing no name will
 include that property in all APIs:
 
 ```groovy
-import grails.plugins.jsonapivariants.Api
+import grails.plugins.jsonapivariants.JsonApi
 
 class User {
-	@Api
+	@JsonApi
 	String screenName
 
-	@Api('userSettings')
+	@JsonApi('userSettings')
 	String email
 
-	@Api(['userSettings', 'detailedInformation'])
+	@JsonApi(['userSettings', 'detailedInformation'])
 	String twitterUsername
 }
 ```
 
-Then in the controller one can call the desired named Api configuration to get only
+Then in the controller one can call the desired named JsonApi configuration to get only
 the fields defined for that API. 
 
 ```groovy
@@ -54,18 +54,18 @@ It works for collections, too (but be careful not to create circular paths):
 static hasMany = [
 	pets: Pet
 ]
-@Api('detailedInformation')
+@JsonApi('detailedInformation')
 Set pets
 ```
 
-In order to mark `belongsTo` properties with the `Api` annotation, declare them explicitly:
+In order to mark `belongsTo` properties with the `JsonApi` annotation, declare them explicitly:
 
 ```groovy
 static belongsTo = [
 	user:User
 ]
 
-@Api('petDetails') 
+@JsonApi('petDetails') 
 User user
 ```
 
@@ -81,7 +81,7 @@ render(contentType: "text/json") {
 
 The selected api configurations work across the whole object graph automatically. The 
 datastore identity property is always included in all APIs automatically so for
-example if you had forgotten to put any `Api` annotations into the `Pet` class
+example if you had forgotten to put any `JsonApi` annotations into the `Pet` class
 you would only get a list of IDs.
 
 

@@ -1,19 +1,19 @@
-import grails.plugins.jsonapivariants.Api
+import grails.plugins.jsonapivariants.JsonApi
 
 class Pet {
 	static belongsTo = [
 		user:User
 	]
 	
-	@Api('petDetails') 
+	@JsonApi('petDetails') 
 	User user
 
-	@Api
+	@JsonApi
 	String name
 	
-	@Api('detailedInformation')
+	@JsonApi('detailedInformation')
 	Integer numberOfLegs
 	
-	@Api('userSettings')
+	@JsonApi('userSettings')
 	Boolean likesTickling
 }

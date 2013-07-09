@@ -1,4 +1,4 @@
-import grails.plugins.jsonapivariants.Api
+import grails.plugins.jsonapivariants.JsonApi
 
 class User {
 
@@ -8,23 +8,23 @@ class User {
 
 	//Annotating a property with @Api and no additional parameters
 	//means this property should appear in all API versions
-	@Api
+	@JsonApi
 	String screenName
 	
 	
-	@Api('userSettings')
+	@JsonApi('userSettings')
 	String email
 	String getEmail() {
 		"${screenName}<${email}>"
 	}
 	
-	@Api(['userSettings', 'detailedInformation', 'social'])
+	@JsonApi(['userSettings', 'detailedInformation', 'social'])
 	String twitterUsername
 	
-	@Api(['detailedInformation', 'userSettings'])
+	@JsonApi(['detailedInformation', 'userSettings'])
 	Set pets
 	
-	@Api('detailedInformation')
+	@JsonApi('detailedInformation')
 	Integer getNumberOfTicklyAnimals() {
 		pets.count { it.likesTickling }
 	}

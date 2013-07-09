@@ -39,7 +39,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	private static getPropertyAnnotationValue(Class clazz, String propertyName) {
 		while (clazz) {
 			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() }
-			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(Api)?.value()
+			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(JsonApi)?.value()
 			else clazz = clazz.superclass
 		}
 		return null
