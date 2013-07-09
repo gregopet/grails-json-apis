@@ -26,14 +26,18 @@ Several API variants can be easily defined in domain classes. Marking a property
 include that property in all APIs:
 
 ```groovy
-@Api
-String screenName
+import grails.plugins.jsonapivariants.Api
 
-@Api('userSettings')
-String email
+class User {
+	@Api
+	String screenName
 
-@Api(['userSettings', 'detailedInformation'])
-String twitterUsername
+	@Api('userSettings')
+	String email
+
+	@Api(['userSettings', 'detailedInformation'])
+	String twitterUsername
+}
 ```
 
 Then in the controller one can call the desired named Api configuration to get only
