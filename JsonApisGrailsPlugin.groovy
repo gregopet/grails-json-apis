@@ -2,7 +2,7 @@ import grails.converters.JSON
 import grails.plugins.jsonapis.AnnotationMarshaller
 
 class JsonApisGrailsPlugin {
-    def version = "0.1"
+    def version = "0.9"
     def grailsVersion = "2.0 > *"
     def pluginExcludes = [
         "grails-app/views/**",
