@@ -1,4 +1,4 @@
-package grails.plugins.jsonapivariants
+package grails.plugins.jsonapis
 
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy

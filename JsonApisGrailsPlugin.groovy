@@ -1,7 +1,7 @@
 import grails.converters.JSON
-import grails.plugins.jsonapivariants.AnnotationMarshaller
+import grails.plugins.jsonapis.AnnotationMarshaller
 
-class JsonApiVariantsGrailsPlugin {
+class JsonApisGrailsPlugin {
     def version = "0.1"
     def grailsVersion = "2.0 > *"
     def pluginExcludes = [
@@ -13,7 +13,7 @@ class JsonApiVariantsGrailsPlugin {
         "demo-output.html"
     ]
 
-    def title = "Grails Json Api Variants Plugin"
+    def title = "Grails Json Apis Plugin"
     def author = "Gregor Petrin"
     def authorEmail = "gregap@gmail.com"
     def description = '''\

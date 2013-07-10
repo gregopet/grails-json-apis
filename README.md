@@ -1,7 +1,7 @@
-grails-json-api-variants
+grails-json-apis
 ========================
 
-## Grails plugin for managing multiple JSON api variants using domain class annotations
+## Grails plugin for managing multiple JSON apis using domain class annotations
 
 The goal of this plugin is to help convert Grails domain classes into various
 JSON representations needed in different parts of your web application or to 
@@ -26,7 +26,7 @@ Several API variants can be easily defined in domain classes. Marking a property
 include that property in all APIs:
 
 ```groovy
-import grails.plugins.jsonapivariants.JsonApi
+import grails.plugins.jsonapis.JsonApi
 
 class User {
 	@JsonApi

@@ -1,4 +1,4 @@
-package grails.plugins.jsonapivariants
+package grails.plugins.jsonapis
 
 import groovy.util.logging.Log
 
