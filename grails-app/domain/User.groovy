@@ -24,6 +24,8 @@ class User {
 	@JsonApi(['detailedInformation', 'userSettings'])
 	Set pets
 	
+	String neverGetsSerialized
+	
 	@JsonApi('detailedInformation')
 	Integer getNumberOfTicklyAnimals() {
 		pets.count { it.likesTickling }

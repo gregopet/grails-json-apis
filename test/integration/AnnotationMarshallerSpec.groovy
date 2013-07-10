@@ -7,7 +7,7 @@ class AnnotationMarshallerSpec extends IntegrationSpec {
 	User roger
 
 	def setup() {
-		roger = new User(email: 'roger@roger.com', screenName: 'Roger', twitterUsername:'RogerRocks')
+		roger = new User(email: 'roger@roger.com', screenName: 'Roger', twitterUsername:'RogerRocks', neverGetsSerialized:'some_value')
 		roger.addToPets new ViciousPet(name:'spikey', numberOfLegs: 8, likesTickling: false, licenceNumber: 123)
 		roger.addToPets(name:'rover', numberOfLegs: 4, likesTickling: true)
 	}
@@ -60,7 +60,7 @@ class AnnotationMarshallerSpec extends IntegrationSpec {
 		JSON.use("social")
 
 		then:
-		!toJsonAndBack(roger).pets
+		!toJsonAndBack(roger).neverGetsSerialized
 	}
 
 	def "Marshaller should process 'belongsTo' parent relations that belong to an API"() {

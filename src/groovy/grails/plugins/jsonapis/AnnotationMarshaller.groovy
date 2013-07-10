@@ -25,7 +25,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 		Set namespaces = []
 		domainClasses.each { domainClass ->
 			domainClass.properties.each { groovyProperty ->
-				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )
+				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )?.value()
 				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace }
 			}
 		}
@@ -34,12 +34,12 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	}
 
 	/**
-	 * Finds the method or field corresponding to a Groovy property name.
+	 * Finds the method or field corresponding to a Groovy property name and its JsonApi annotation if it exists.
 	 */
-	private static getPropertyAnnotationValue(Class clazz, String propertyName) {
+	private static JsonApi getPropertyAnnotationValue(Class clazz, String propertyName) {
 		while (clazz) {
 			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() }
-			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(JsonApi)?.value()
+			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(JsonApi)
 			else clazz = clazz.superclass
 		}
 		return null
@@ -53,8 +53,8 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
 		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
-			def annotationValue = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
-			return !annotationValue || annotationValue.contains(namespace)
+			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
+			return annotation && (!annotation.value() || annotation.value().contains(namespace))
 		}
 	}
 

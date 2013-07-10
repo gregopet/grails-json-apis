@@ -16,4 +16,10 @@ class Pet {
 	
 	@JsonApi('userSettings')
 	Boolean likesTickling
+	
+	//This property serves to help unit tests detect
+	//any bugs with setters-only properties.
+	void setSomething(String password) {
+	
+	}
 }
