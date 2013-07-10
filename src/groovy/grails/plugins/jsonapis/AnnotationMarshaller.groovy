@@ -65,7 +65,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * @param object The object we are querying about.
 	 */
 	boolean supports(object) {
-		return object.getClass().isAssignableFrom(forClass.clazz)
+		return forClass.clazz == object.getClass()
 	}
 
 	/**
