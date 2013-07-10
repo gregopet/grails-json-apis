@@ -23,12 +23,12 @@ levels of detail or from different starting points in the object
 graph.
 '''
 
-    def documentation = "https://github.com/gregopet/grails-json-api-variants"
+    def documentation = "https://github.com/gregopet/grails-json-apis"
 
     def license = "APACHE"
-    def issueManagement = [ system: "github", url: "https://github.com/gregopet/grails-json-api-variants/issues" ]
+    def issueManagement = [ system: "github", url: "https://github.com/gregopet/grails-json-apis/issues" ]
 
-    def scm = [ url: "https://github.com/gregopet/grails-json-api-variants" ]
+    def scm = [ url: "https://github.com/gregopet/grails-json-apis" ]
 
     def doWithApplicationContext = { applicationContext ->
         //Generate and register the required ObjectMarshaller instances.
