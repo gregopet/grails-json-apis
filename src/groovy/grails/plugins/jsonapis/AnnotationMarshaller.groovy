@@ -56,6 +56,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
 			return annotation && (!annotation.value() || annotation.value().contains(namespace))
 		}
+		log.info "Domain class ${matchedDomainClass.clazz.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
 	}
 
 	/**
