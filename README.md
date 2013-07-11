@@ -87,9 +87,8 @@ you would only get a list of IDs.
 
 ## Future plans
 
-Find all the corner cases in which the current implementation wouldn't work. Then further
-in the future an API documenting script would be nice, producing charts or 
-markdown docs from the data contained in the annotation(s). And finally it should
-be possible to read the domain class annotations and create configurations for those 3rd
-party JSON renderers which currently seem to perform better than the native Grails
-implementation.
+ - Detect circular APIs and display a warning on startup, perhaps disable them entirely
+ - Detect API changes without restarting the app in development mode
+ - Add a script/controller that would document the registered APIs in one or more formats
+ - Read the domain class annotations and produce configurations for those 3rd party JSON 
+   renderers which currently seem to perform better than the native Grails implementation
