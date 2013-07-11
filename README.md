@@ -89,4 +89,7 @@ you would only get a list of IDs.
 
 Find all the corner cases in which the current implementation wouldn't work. Then further
 in the future an API documenting script would be nice, producing charts or 
-markdown docs from the data contained in the annotation(s).
+markdown docs from the data contained in the annotation(s). And finally it should
+be possible to read the domain class annotations and create configurations for those 3rd
+party JSON renderers which currently seem to perform better than the native Grails
+implementation.
