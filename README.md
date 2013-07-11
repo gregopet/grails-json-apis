@@ -1,4 +1,4 @@
-grails-json-apis
+json-apis
 ========================
 
 ## Grails plugin for managing multiple JSON apis using domain class annotations
@@ -22,8 +22,11 @@ Features:
 
 ## Example of use
 
-Several API variants can be easily defined in domain classes. Marking a property with the `JsonApi` annotation but providing no name will
-include that property in all APIs:
+Several API variants can be easily defined in domain classes by annotating properties with
+`JsonApi` and providing a list of API profile names under which that property should appear in the
+resulting JSON. Marking a property with the `JsonApi` annotation but providing no API names will
+include that property in all APIs. The database identity property will always be included
+automatically. One could for instance define the following domain class:
 
 ```groovy
 import grails.plugins.jsonapis.JsonApi
@@ -40,15 +43,17 @@ class User {
 }
 ```
 
-Then in the controller one can call the desired named JsonApi configuration to get only
-the fields defined for that API. 
+Then in the controller one would call the desired named JsonApi configuration to get only
+the fields defined for that API. The following code:
 
 ```groovy
-JSON.use("userSettings")
+JSON.use("detailedInformation")
 render person as JSON
 ```
 
-It works for collections, too (but be careful not to create circular paths):
+...would convert the `person` object into JSON containing the `id`, `screenName` and `twitterUsername`
+properties but not the `email`. It works for collections as well, converting each collection
+member using the same API profile that was used to convert the parent:
 
 ```groovy
 static hasMany = [
@@ -58,7 +63,9 @@ static hasMany = [
 Set pets
 ```
 
-In order to mark `belongsTo` properties with the `JsonApi` annotation, declare them explicitly:
+To include a domain object's parent in a JSON API, declare a `belongsTo` property explicitly
+and annotate it with `JsonApi` (but be careful not to create circular paths by including both
+ends of a `belongsTo`/`hasMany` pair):
 
 ```groovy
 static belongsTo = [
@@ -78,11 +85,6 @@ render(contentType: "text/json") {
     pet = Pet.first()
 }
 ```
-
-The selected api configurations work across the whole object graph automatically. The 
-datastore identity property is always included in all APIs automatically so for
-example if you had forgotten to put any `JsonApi` annotations into the `Pet` class
-you would only get a list of IDs.
 
 
 ## Future plans
