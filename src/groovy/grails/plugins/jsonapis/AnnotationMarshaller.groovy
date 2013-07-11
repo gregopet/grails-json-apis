@@ -54,7 +54,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 		this.forClass = matchedDomainClass
 		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
 			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
-			return annotation && (!annotation.value() || annotation.value().contains(namespace))
+			return annotation && (!annotation.value() || namespace in annotation.value())
 		}
 		log.info "Domain class ${matchedDomainClass.clazz.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
 	}
