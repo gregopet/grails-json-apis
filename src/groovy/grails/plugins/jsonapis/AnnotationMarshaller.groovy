@@ -17,40 +17,13 @@ import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	protected final DefaultGrailsDomainClass forClass
 	protected List<GrailsDomainClassProperty> propertiesToSerialize
-
-	/**
-	 * Finds all API names defined in all domain classes.
-	 * @return A set of all found namespace names.
-	 */
-	static Set getAllApiNames(domainClasses) {
-		Set namespaces = []
-		domainClasses.each { domainClass ->
-			domainClass.properties.each { groovyProperty ->
-				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )?.value()
-				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace }
-			}
-		}
-		return namespaces
-	}
-
-	/**
-	 * Finds the method or field corresponding to a Groovy property name and its JsonApi annotation if it exists.
-	 */
-	private static JsonApi getPropertyAnnotationValue(Class clazz, String propertyName) {
-		while (clazz) {
-			def fieldOrMethod = clazz.declaredFields.find { it.name == propertyName } ?: clazz.declaredMethods.find { it.name == 'get' + propertyName.capitalize() }
-			if (fieldOrMethod) return fieldOrMethod?.getAnnotation(JsonApi)
-			else clazz = clazz.superclass
-		}
-		return null
-	}
 	
 	/**
 	 * Sets or updates the names of those properties that will be serialized by given API.
 	 */
 	void initPropertiesToSerialize(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
-			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
+			def annotation = JsonApiRegistry.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
 			return annotation && (!annotation.value() || namespace in annotation.value())
 		}
 	}

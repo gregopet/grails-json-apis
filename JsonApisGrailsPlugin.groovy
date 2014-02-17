@@ -1,5 +1,4 @@
-import grails.converters.JSON
-import grails.plugins.jsonapis.AnnotationMarshaller
+import grails.plugins.jsonapis.JsonApiRegistry
 
 class JsonApisGrailsPlugin {
     def version = "0.9"
@@ -30,14 +29,10 @@ graph.
 
     def scm = [ url: "https://github.com/gregopet/grails-json-apis" ]
 
+    //Support live reloading
+    def jsonApiRegistry = new JsonApiRegistry()
     def doWithApplicationContext = { applicationContext ->
         //Generate and register the required ObjectMarshaller instances.
-        AnnotationMarshaller.getAllApiNames(application.domainClasses).each { namespace ->
-            JSON.createNamedConfig(namespace) { JSON ->
-                for (domainClass in application.domainClasses) {
-                    JSON.registerObjectMarshaller(new AnnotationMarshaller<JSON>(domainClass, namespace))
-                }
-            }
-        }
+        jsonApiRegistry.updateMarshallers(application)
     }
 }
