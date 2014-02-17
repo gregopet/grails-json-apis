@@ -16,7 +16,7 @@ import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
 @Log
 class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	protected final DefaultGrailsDomainClass forClass
-	protected final List<GrailsDomainClassProperty> propertiesToSerialize
+	protected List<GrailsDomainClassProperty> propertiesToSerialize
 
 	/**
 	 * Finds all API names defined in all domain classes.
@@ -44,6 +44,16 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 		}
 		return null
 	}
+	
+	/**
+	 * Sets or updates the names of those properties that will be serialized by given API.
+	 */
+	void initPropertiesToSerialize(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
+		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
+			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
+			return annotation && (!annotation.value() || namespace in annotation.value())
+		}
+	}
 
 	/**
 	 * Constructor: constructs a new marshaller for a given domain class - namespace combo.
@@ -52,10 +62,7 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	 */
 	AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
-		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
-			def annotation = AnnotationMarshaller.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
-			return annotation && (!annotation.value() || namespace in annotation.value())
-		}
+		initPropertiesToSerialize(matchedDomainClass, namespace)
 		log.info "Domain class ${matchedDomainClass.clazz.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
 	}
 
