@@ -19,6 +19,7 @@ Features:
    either in a parent or child entity, depending on the use case
  - Works for objects serialized inside a [JSON builder](http://grails.org/doc/latest/guide/theWebLayer.html#moreOnJSONBuilder)
  - Uses the Grails' `ObjectMarshaller` mechanism under the hood
+ - Detects API changes during development time live reloads
 
 ## Example of use
 
@@ -90,7 +91,6 @@ render(contentType: "text/json") {
 ## Future plans
 
  - Detect circular APIs and display a warning on startup, perhaps disable them entirely
- - Detect API changes without restarting the app in development mode
  - Add a script/controller that would document the registered APIs in one or more formats
  - Read the domain class annotations and produce configurations for those 3rd party JSON 
    renderers which currently seem to perform better than the native Grails implementation
