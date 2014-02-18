@@ -31,6 +31,11 @@ graph.
 
     //Support live reloading
     def jsonApiRegistry = new JsonApiRegistry()
+    def watchedResources = "file:./grails-app/domain/**.groovy"
+    def onChange = { event ->
+        //Update ObjectMarshallers
+        jsonApiRegistry.updateMarshallers(event.application)
+    }
     def doWithApplicationContext = { applicationContext ->
         //Generate and register the required ObjectMarshaller instances.
         jsonApiRegistry.updateMarshallers(application)

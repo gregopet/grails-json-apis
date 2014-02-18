@@ -15,16 +15,31 @@ import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
  */
 @Log
 class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
-	protected final DefaultGrailsDomainClass forClass
+	final DefaultGrailsDomainClass forClass
 	protected List<GrailsDomainClassProperty> propertiesToSerialize
+	protected apiName
+	
+	/**
+	 * Set to true if an API was removed via a live reload event so user
+	 * can be notified when trying to marshall a class using this deleted
+	 * API.
+	 */
+	boolean deleted = false
+	void setDeleted(boolean value) {
+		if (value != this.deleted) {
+			if (value) log.info "Domain class ${forClass.clazz.name} will no longer serialize under namespace $apiName"
+			else log.info "Domain class ${forClass.clazz.name} will again serialize under namespace $apiName"
+			this.deleted = value
+		}
+	}
 	
 	/**
 	 * Sets or updates the names of those properties that will be serialized by given API.
 	 */
-	void initPropertiesToSerialize(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
-		this.propertiesToSerialize = matchedDomainClass.properties.findAll { groovyProperty ->
-			def annotation = JsonApiRegistry.getPropertyAnnotationValue( matchedDomainClass.clazz, groovyProperty.name )
-			return annotation && (!annotation.value() || namespace in annotation.value())
+	void initPropertiesToSerialize() {
+		this.propertiesToSerialize = forClass.properties.findAll { groovyProperty ->
+			def annotation = JsonApiRegistry.getPropertyAnnotationValue( forClass.clazz, groovyProperty.name )
+			return annotation && (!annotation.value() || apiName in annotation.value())
 		}
 	}
 
@@ -35,7 +50,9 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	 */
 	AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
-		initPropertiesToSerialize(matchedDomainClass, namespace)
+		this.deleted = false
+		this.apiName = namespace
+		initPropertiesToSerialize()
 		log.info "Domain class ${matchedDomainClass.clazz.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
 	}
 
@@ -55,6 +72,7 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	 * @param converter The converter instance that is performing the serialization.
 	 */
 	void marshalObject(object, T converter) {
+		if (deleted) throw new org.codehaus.groovy.grails.web.converters.exceptions.ConverterException("Converter Configuration with name '${apiName}' was removed!")
 		converter.build {
 			"${forClass.identifier.name}"(object.ident()) //always put the ID property into the object..
 			for (prop in propertiesToSerialize) {

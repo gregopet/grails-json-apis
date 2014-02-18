@@ -1,5 +1,7 @@
 package grails.plugins.jsonapis
 
+import groovy.util.logging.Log
+
 import grails.converters.JSON
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
@@ -9,21 +11,41 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
  * Keeps track of all the JSON APIs registered by the plugin. Constains methods
  * that are called on live reload events to update the APIs.
  */
+@Log
 class JsonApiRegistry {
+	final Map marshallersByApi
+	
+	JsonApiRegistry() {
+		marshallersByApi = [:].withDefault { [] }
+	}
 	
 	/**
 	 * Updates the state of all registered marshallers, adding new ones or
 	 * deleting existing (in case of a live reload).
 	 */
 	void updateMarshallers(GrailsApplication application) {
-		getAllApiNames(application.domainClasses).each { namespace ->
+		def allApiNames = getAllApiNames(application.domainClasses)
+		
+		def newApis = allApiNames - marshallersByApi.keySet()
+		newApis.each { namespace ->
 			JSON.createNamedConfig(namespace) { JSON ->
 				for (domainClass in application.domainClasses) {
 					def marshaller = new AnnotationMarshaller<JSON>(domainClass, namespace)
 					JSON.registerObjectMarshaller(marshaller)
-					//marshallersByDomainClassAndApi[domainClass][namespace] = marshaller
+					marshallersByApi[namespace] << marshaller
 				}
 			}
+		}
+		
+		def deletedApis = marshallersByApi.keySet() - allApiNames
+		deletedApis.each { String apiName ->
+			marshallersByApi[apiName]*.deleted = true
+		}
+		
+		def remainingApis = allApiNames - deletedApis - newApis
+		remainingApis.each { String apiName ->
+			marshallersByApi[apiName]*.deleted = false
+			marshallersByApi[apiName]*.initPropertiesToSerialize()
 		}
 	}
 	
