@@ -1,7 +1,7 @@
 import grails.plugins.jsonapis.JsonApiRegistry
 
 class JsonApisGrailsPlugin {
-    def version = "0.9"
+    def version = "0.95"
     def grailsVersion = "2.0 > *"
     def pluginExcludes = [
         "grails-app/views/**",
