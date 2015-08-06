@@ -3,6 +3,7 @@
 /.launch
 /.project
 /.settings
+*.iml
 
 # logs
 /stacktrace.log
@@ -14,7 +15,8 @@ plugin.xml
 /web-app
 
 # "temporary" build files
-/target
+/build
+/.gradle
 
 # other
 *.iws
