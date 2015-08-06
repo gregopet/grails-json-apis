@@ -1,3 +1,5 @@
+package testapi
+
 import grails.plugins.jsonapis.JsonApi
 
 class ViciousPet extends Pet {

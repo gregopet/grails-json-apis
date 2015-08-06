@@ -3,9 +3,10 @@ package grails.plugins.jsonapis
 import groovy.util.logging.Log
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.grails.core.legacy.LegacyGrailsApplication
+import org.grails.core.legacy.LegacyGrailsDomainClass
+import grails.core.GrailsDomainClassProperty
+import org.grails.web.converters.marshaller.ObjectMarshaller
 
 /**
  * Keeps track of all the JSON APIs registered by the plugin. Constains methods
@@ -23,7 +24,7 @@ class JsonApiRegistry {
 	 * Updates the state of all registered marshallers, adding new ones or
 	 * deleting existing (in case of a live reload).
 	 */
-	void updateMarshallers(GrailsApplication application) {
+	void updateMarshallers(LegacyGrailsApplication application) {
 		def allApiNames = getAllApiNames(application.domainClasses)
 		
 		def newApis = allApiNames - marshallersByApi.keySet()

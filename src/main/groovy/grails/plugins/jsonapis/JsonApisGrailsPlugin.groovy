@@ -1,15 +1,14 @@
-import grails.plugins.jsonapis.JsonApiRegistry
+package grails.plugins.jsonapis
+import grails.converters.JSON
 
 class JsonApisGrailsPlugin {
-    def version = "0.95"
-    def grailsVersion = "2.0 > *"
+    def grailsVersion = "3.0 > *"
     def pluginExcludes = [
-        "grails-app/views/**",
-        "grails-app/domain/**",
-        "grails-app/controllers/**",
-        "grails-app/i18n/**",
-        "web-app/**",
-        "demo-output.html"
+        "**/views/**",
+        "**/i18n/**",
+        "**/web-app/**",
+        "demo-output.html",
+        "testapi/**"
     ]
 
     def title = "Grails Json Apis Plugin"

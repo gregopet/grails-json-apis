@@ -2,10 +2,9 @@ package grails.plugins.jsonapis
 
 import groovy.util.logging.Log
 
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.codehaus.groovy.grails.web.converters.Converter
-import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
+import org.grails.core.legacy.LegacyGrailsDomainClass
+import grails.core.GrailsDomainClassProperty
+import org.grails.web.converters.marshaller.ObjectMarshaller
 
 /**
  * This class implements the JSON serialization of domain objects
@@ -14,8 +13,8 @@ import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
  * It also contains static helper methods to help with reflection.
  */
 @Log
-class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
-	final DefaultGrailsDomainClass forClass
+class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
+	final LegacyGrailsDomainClass forClass
 	protected List<GrailsDomainClassProperty> propertiesToSerialize
 	protected apiName
 	
@@ -48,7 +47,7 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	 * @param matchedDomainClass A grails domain class descriptor for which we are registering this marshaller.
 	 * @param namespace Name of the namespace for which we are registering this marshaller.
 	 */
-	AnnotationMarshaller(DefaultGrailsDomainClass matchedDomainClass, String namespace) {
+	AnnotationMarshaller(LegacyGrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
 		this.deleted = false
 		this.apiName = namespace
@@ -72,9 +71,9 @@ class AnnotationMarshaller<T extends Converter> implements ObjectMarshaller<T> {
 	 * @param converter The converter instance that is performing the serialization.
 	 */
 	void marshalObject(object, T converter) {
-		if (deleted) throw new org.codehaus.groovy.grails.web.converters.exceptions.ConverterException("Converter Configuration with name '${apiName}' was removed!")
+		if (deleted) throw new org.grails.web.converters.exceptions.ConverterException("Converter Configuration with name '${apiName}' was removed!")
 		converter.build {
-			"${forClass.identifier.name}"(object.ident()) //always put the ID property into the object..
+			"${forClass.identifier.name}"(object."${forClass.identifier.name}") //always put the ID property into the object..
 			for (prop in propertiesToSerialize) {
 				if (prop.oneToMany) {
 					"$prop.name" {
