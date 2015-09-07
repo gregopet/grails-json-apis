@@ -1,7 +1,8 @@
 package grails.plugins.jsonapis
-import grails.converters.JSON
 
-class JsonApisGrailsPlugin {
+import grails.plugins.Plugin
+
+class JsonApisGrailsPlugin extends Plugin {
     def grailsVersion = "3.0 > *"
     def pluginExcludes = [
         "**/views/**",
@@ -31,12 +32,12 @@ graph.
     //Support live reloading
     def jsonApiRegistry = new JsonApiRegistry()
     def watchedResources = "file:./grails-app/domain/**.groovy"
-    def onChange = { event ->
+    void onChange(Map<String, Object> event) {
         //Update ObjectMarshallers
-        jsonApiRegistry.updateMarshallers(event.application)
+        jsonApiRegistry.updateMarshallers(grailsApplication)
     }
-    def doWithApplicationContext = { applicationContext ->
+    void doWithApplicationContext() {
         //Generate and register the required ObjectMarshaller instances.
-        jsonApiRegistry.updateMarshallers(application)
+        jsonApiRegistry.updateMarshallers(grailsApplication)
     }
 }
