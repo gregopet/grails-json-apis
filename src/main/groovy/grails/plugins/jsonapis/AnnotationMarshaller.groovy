@@ -1,8 +1,8 @@
 package grails.plugins.jsonapis
 
+import grails.core.GrailsDomainClass
 import groovy.util.logging.Log
 
-import org.grails.core.legacy.LegacyGrailsDomainClass
 import grails.core.GrailsDomainClassProperty
 import org.grails.web.converters.marshaller.ObjectMarshaller
 
@@ -14,7 +14,7 @@ import org.grails.web.converters.marshaller.ObjectMarshaller
  */
 @Log
 class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
-	final LegacyGrailsDomainClass forClass
+	final GrailsDomainClass forClass
 	protected List<GrailsDomainClassProperty> propertiesToSerialize
 	protected apiName
 	
@@ -47,7 +47,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * @param matchedDomainClass A grails domain class descriptor for which we are registering this marshaller.
 	 * @param namespace Name of the namespace for which we are registering this marshaller.
 	 */
-	AnnotationMarshaller(LegacyGrailsDomainClass matchedDomainClass, String namespace) {
+	AnnotationMarshaller(GrailsDomainClass matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
 		this.deleted = false
 		this.apiName = namespace

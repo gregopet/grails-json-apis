@@ -1,27 +1,28 @@
+import grails.core.GrailsApplication
+import grails.core.GrailsDomainClass
 import spock.lang.*
 import grails.plugins.jsonapis.*
 
 import testapi.*
 import org.grails.core.legacy.LegacyGrailsDomainClass
-import org.grails.core.legacy.LegacyGrailsApplication
-import grails.test.mixin.integration.Integration
 
 class JsonApiRegistrySpec extends Specification {
-	LegacyGrailsDomainClass domainClass
-	LegacyGrailsApplication grailsApplication
+	GrailsDomainClass domainClass
+	GrailsApplication grailsApplication
 	JsonApiRegistry registry
 	
 	def setup() {
-		domainClass = new LegacyGrailsDomainClass()
-		grailsApplication = new LegacyGrailsApplication()
-		grailsApplication.metaClass.getDomainClasses = { [domainClass] }
+		domainClass = Mock(GrailsDomainClass)
+		grailsApplication = Stub(GrailsApplication) {
+			getArtefacts('Domain') >> [domainClass]
+		}
 		registry = new JsonApiRegistry()
 	}
 
 	def "during live reloads .updateMarshallers should mark registered but unannotated marshallers as deleted"() {
 		given: 'a registry with a registered marshaller not present in domain class annotations'
 		def marshaller = Mock(AnnotationMarshaller)
-		def app = Stub(LegacyGrailsApplication) {
+		def app = Stub(GrailsApplication) {
 			getProperty('domainClasses') >> []
 		}
 		registry.marshallersByApi['non-existant-api'] << marshaller

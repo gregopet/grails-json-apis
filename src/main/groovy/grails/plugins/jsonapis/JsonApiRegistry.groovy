@@ -1,12 +1,10 @@
 package grails.plugins.jsonapis
 
+import grails.core.GrailsApplication
+import grails.core.GrailsDomainClass
 import groovy.util.logging.Log
 
 import grails.converters.JSON
-import org.grails.core.legacy.LegacyGrailsApplication
-import org.grails.core.legacy.LegacyGrailsDomainClass
-import grails.core.GrailsDomainClassProperty
-import org.grails.web.converters.marshaller.ObjectMarshaller
 
 /**
  * Keeps track of all the JSON APIs registered by the plugin. Constains methods
@@ -24,13 +22,14 @@ class JsonApiRegistry {
 	 * Updates the state of all registered marshallers, adding new ones or
 	 * deleting existing (in case of a live reload).
 	 */
-	void updateMarshallers(LegacyGrailsApplication application) {
-		def allApiNames = getAllApiNames(application.domainClasses)
+	void updateMarshallers(GrailsApplication application) {
+		List<GrailsDomainClass> domainClasses = application.getArtefacts('Domain')
+		def allApiNames = getAllApiNames(domainClasses)
 		
 		def newApis = allApiNames - marshallersByApi.keySet()
 		newApis.each { namespace ->
 			JSON.createNamedConfig(namespace) { JSON ->
-				for (domainClass in application.domainClasses) {
+				for (def domainClass : domainClasses) {
 					def marshaller = new AnnotationMarshaller<JSON>(domainClass, namespace)
 					JSON.registerObjectMarshaller(marshaller)
 					marshallersByApi[namespace] << marshaller
@@ -54,7 +53,7 @@ class JsonApiRegistry {
 	 * Finds all API names defined in all domain classes.
 	 * @return A set of all found namespace names.
 	 */
-	Set getAllApiNames(domainClasses) {
+	Set getAllApiNames(List<GrailsDomainClass> domainClasses) {
 		Set namespaces = []
 		domainClasses.each { domainClass ->
 			domainClass.properties.each { groovyProperty ->
