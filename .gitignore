@@ -4,6 +4,7 @@
 /.project
 /.settings
 *.iml
+.idea/**
 
 # logs
 /stacktrace.log
