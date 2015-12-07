@@ -2,17 +2,21 @@ package grails.plugins.jsonapis
 
 import grails.core.GrailsApplication
 import grails.core.GrailsDomainClass
+import grails.core.GrailsDomainClassProperty
+import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 
 import grails.converters.JSON
+import org.grails.web.converters.configuration.DefaultConverterConfiguration
 
 /**
  * Keeps track of all the JSON APIs registered by the plugin. Constains methods
  * that are called on live reload events to update the APIs.
  */
 @Log
+@CompileStatic
 class JsonApiRegistry {
-	final Map marshallersByApi
+	final Map<String, List<AnnotationMarshaller<JSON>>> marshallersByApi
 	
 	JsonApiRegistry() {
 		marshallersByApi = [:].withDefault { [] }
@@ -23,15 +27,15 @@ class JsonApiRegistry {
 	 * deleting existing (in case of a live reload).
 	 */
 	void updateMarshallers(GrailsApplication application) {
-		List<GrailsDomainClass> domainClasses = application.getArtefacts('Domain')
+		List<GrailsDomainClass> domainClasses = application.getArtefacts('Domain').toList() as List<GrailsDomainClass>
 		def allApiNames = getAllApiNames(domainClasses)
 		
 		def newApis = allApiNames - marshallersByApi.keySet()
 		newApis.each { namespace ->
-			JSON.createNamedConfig(namespace) { JSON ->
+			JSON.createNamedConfig(namespace) { DefaultConverterConfiguration<JSON> cfg ->
 				for (def domainClass : domainClasses) {
 					def marshaller = new AnnotationMarshaller<JSON>(domainClass, namespace)
-					JSON.registerObjectMarshaller(marshaller)
+					cfg.registerObjectMarshaller(marshaller)
 					marshallersByApi[namespace] << marshaller
 				}
 			}
@@ -53,10 +57,10 @@ class JsonApiRegistry {
 	 * Finds all API names defined in all domain classes.
 	 * @return A set of all found namespace names.
 	 */
-	Set getAllApiNames(List<GrailsDomainClass> domainClasses) {
+	Set<String> getAllApiNames(List<GrailsDomainClass> domainClasses) {
 		Set namespaces = []
-		domainClasses.each { domainClass ->
-			domainClass.properties.each { groovyProperty ->
+		domainClasses.each { GrailsDomainClass domainClass ->
+			domainClass.properties.each { GrailsDomainClassProperty groovyProperty ->
 				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )?.value()
 				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace }
 			}
