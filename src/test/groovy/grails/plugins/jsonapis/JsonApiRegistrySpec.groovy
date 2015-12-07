@@ -1,6 +1,8 @@
 import grails.converters.JSON
 import grails.core.GrailsApplication
+import grails.core.GrailsClass
 import grails.core.GrailsDomainClass
+import org.grails.core.DefaultGrailsDomainClass
 import spock.lang.*
 import grails.plugins.jsonapis.*
 
@@ -22,17 +24,15 @@ class JsonApiRegistrySpec extends Specification {
 
 	def "during live reloads .updateMarshallers should mark registered but unannotated marshallers as deleted"() {
 		given: 'a registry with a registered marshaller not present in domain class annotations'
-		def marshaller = Mock(AnnotationMarshaller)
-		def app = Stub(GrailsApplication) {
-			getProperty('domainClasses') >> []
-		}
-		registry.marshallersByApi['non-existant-api'] << marshaller
+		AnnotationMarshaller<JSON> marshaller = new AnnotationMarshaller<JSON>(new DefaultGrailsDomainClass(ViciousPet), "non-existant-api")
+		def app = Stub(GrailsApplication)
+		registry.marshallersByApi['non-existant-api'].add(marshaller)
 		
 		when: 'updating marshallers from annotations'
 		registry.updateMarshallers(app)
 		
 		then: 'no-longer existing marshaller is marked as deleted'
-		1 * marshaller.setProperty('deleted', true)
+		marshaller.deleted
 	}
 
 	def ".registerMarshaller allows registering individual marshallers in unit tests"() {

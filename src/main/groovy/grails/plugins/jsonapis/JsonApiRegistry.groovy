@@ -20,7 +20,7 @@ class JsonApiRegistry {
 	final Map<String, List<AnnotationMarshaller<JSON>>> marshallersByApi
 	
 	JsonApiRegistry() {
-		marshallersByApi = [:].withDefault { [] }
+		marshallersByApi = [:].withDefault { new ArrayList<AnnotationMarshaller<JSON>>() }
 	}
 	
 	/**
@@ -44,7 +44,8 @@ class JsonApiRegistry {
 		
 		def deletedApis = marshallersByApi.keySet() - allApiNames
 		deletedApis.each { String apiName ->
-			marshallersByApi[apiName]*.deleted = true
+			List deletedMarshallers = marshallersByApi[apiName]
+			deletedMarshallers.each { it.deleted = true }
 		}
 		
 		def remainingApis = allApiNames - deletedApis - newApis
