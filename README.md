@@ -89,6 +89,15 @@ JSON.use("userSettings") {
 }
 ```
 
+## Testing support
+
+To register named marshallers in unit tests, you can use a static method that accepts the marshaller name
+the classes you need registered:
+
+```groovy
+JsonApiRegistry.registerMarshaller("detailedInformation", ViciousPet)
+```
+
 
 ## Future plans
 

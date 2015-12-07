@@ -7,6 +7,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log
 
 import grails.converters.JSON
+import org.grails.core.DefaultGrailsDomainClass
 import org.grails.web.converters.configuration.DefaultConverterConfiguration
 
 /**
@@ -78,6 +79,21 @@ class JsonApiRegistry {
 			else clazz = clazz.superclass
 		}
 		return null
+	}
+
+	/**
+	 * Registers a single marshaller on a collection of domain classes - useful in unit tests!
+	 * @param marshallerName Name of the marshaller to register.
+	 * @param domainClass Classes on which we want to register the marshaller.
+	 */
+	static void registerMarshaller(String marshallerName, Class... domainClasses) {
+		JSON.createNamedConfig(marshallerName) { DefaultConverterConfiguration<JSON> cfg ->
+			for (Class clazz : domainClasses) {
+				def marshaller = new AnnotationMarshaller<JSON>(new DefaultGrailsDomainClass(clazz), marshallerName)
+				cfg.registerObjectMarshaller(marshaller)
+			}
+		}
+
 	}
 
 

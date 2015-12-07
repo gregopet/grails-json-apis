@@ -1,3 +1,4 @@
+import grails.converters.JSON
 import grails.core.GrailsApplication
 import grails.core.GrailsDomainClass
 import spock.lang.*
@@ -32,6 +33,22 @@ class JsonApiRegistrySpec extends Specification {
 		
 		then: 'no-longer existing marshaller is marked as deleted'
 		1 * marshaller.setProperty('deleted', true)
+	}
+
+	def ".registerMarshaller allows registering individual marshallers in unit tests"() {
+		given:
+		JsonApiRegistry.registerMarshaller("detailedInformation", ViciousPet)
+
+		when:
+		String marshalledPet
+		JSON.use("detailedInformation") {
+			marshalledPet = new JSON(new ViciousPet(licenceNumber:1234, likesTickling: true)).toString()
+		}
+
+		then:
+		marshalledPet.contains('licenceNumber')
+		marshalledPet.contains('1234')
+		!marshalledPet.contains('likesTickling')
 	}
 	
 	@Ignore //it's hard to test this :(
