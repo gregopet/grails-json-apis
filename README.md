@@ -4,14 +4,14 @@ json-apis
 ## Grails plugin for managing multiple JSON apis using domain class annotations
 
 The goal of this plugin is to help convert Grails domain classes into various
-JSON representations needed in different parts of your web application or to 
-support various API versions. 
+JSON representations needed in different parts of your web application or to
+support various API versions.
 
 Features:
 
  - Allows you to declare multiple named JSON configurations for different use cases
  - Configuration is very straightforward: all that is required is to mark domain class
-   properties with a single annotation naming the configurations under which that 
+   properties with a single annotation naming the configurations under which that
    property should be included in the serialized JSON object
  - Works for collections as well as `belongsTo` properties
  - Enables developers to avoid the circular object reference problem elegantly by
@@ -48,8 +48,9 @@ Then in the controller one would call the desired named JsonApi configuration to
 the fields defined for that API. The following code:
 
 ```groovy
-JSON.use("detailedInformation")
-render person as JSON
+JSON.use("detailedInformation") {
+	render person as JSON
+}
 ```
 
 ...would convert the `person` object into JSON containing the `id`, `screenName` and `twitterUsername`
@@ -73,17 +74,18 @@ static belongsTo = [
 	user:User
 ]
 
-@JsonApi('petDetails') 
+@JsonApi('petDetails')
 User user
 ```
 
 JSONBuilder is supported, too:
 
 ```groovy
-JSON.use("userSettings")
-render(contentType: "text/json") {
-    user = User.first()
-    pet = Pet.first()
+JSON.use("userSettings") {
+	render(contentType: "text/json") {
+		user = User.first()
+		pet = Pet.first()
+	}
 }
 ```
 
@@ -92,5 +94,5 @@ render(contentType: "text/json") {
 
  - Detect circular APIs and display a warning on startup, perhaps disable them entirely
  - Add a script/controller that would document the registered APIs in one or more formats
- - Read the domain class annotations and produce configurations for those 3rd party JSON 
+ - Read the domain class annotations and produce configurations for those 3rd party JSON
    renderers which currently seem to perform better than the native Grails implementation
