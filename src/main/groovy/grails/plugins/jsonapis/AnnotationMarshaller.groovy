@@ -1,9 +1,8 @@
 package grails.plugins.jsonapis
 
-import grails.core.GrailsDomainClass
 import groovy.util.logging.Log
-
-import grails.core.GrailsDomainClassProperty
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.converters.marshaller.ObjectMarshaller
 
 /**
@@ -14,8 +13,8 @@ import org.grails.web.converters.marshaller.ObjectMarshaller
  */
 @Log
 class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
-	final GrailsDomainClass forClass
-	protected List<GrailsDomainClassProperty> propertiesToSerialize
+	final PersistentEntity forClass
+	protected List<MetaProperty> propertiesToSerialize
 	protected apiName
 	
 	/**
@@ -26,8 +25,8 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	boolean deleted = false
 	void setDeleted(boolean value) {
 		if (value != this.deleted) {
-			if (value) log.info "Domain class ${forClass.clazz.name} will no longer serialize under namespace $apiName"
-			else log.info "Domain class ${forClass.clazz.name} will again serialize under namespace $apiName"
+			if (value) log.info "Domain class ${forClass.name} will no longer serialize under namespace $apiName"
+			else log.info "Domain class ${forClass.name} will again serialize under namespace $apiName"
 			this.deleted = value
 		}
 	}
@@ -36,8 +35,8 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * Sets or updates the names of those properties that will be serialized by given API.
 	 */
 	void initPropertiesToSerialize() {
-		this.propertiesToSerialize = forClass.properties.findAll { groovyProperty ->
-			def annotation = JsonApiRegistry.getPropertyAnnotationValue( forClass.clazz, groovyProperty.name )
+		this.propertiesToSerialize = forClass.javaClass.metaClass.properties.findAll { groovyProperty ->
+			def annotation = JsonApiRegistry.getPropertyAnnotationValue( forClass.javaClass, groovyProperty.name )
 			return annotation && (!annotation.value() || apiName in annotation.value())
 		}
 	}
@@ -47,12 +46,12 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * @param matchedDomainClass A grails domain class descriptor for which we are registering this marshaller.
 	 * @param namespace Name of the namespace for which we are registering this marshaller.
 	 */
-	AnnotationMarshaller(GrailsDomainClass matchedDomainClass, String namespace) {
+	AnnotationMarshaller(PersistentEntity matchedDomainClass, String namespace) {
 		this.forClass = matchedDomainClass
 		this.deleted = false
 		this.apiName = namespace
 		initPropertiesToSerialize()
-		log.info "Domain class ${matchedDomainClass.clazz.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
+		log.info "Domain class ${matchedDomainClass.javaClass.name} will serialize following properties under namespace $namespace: ${propertiesToSerialize.collect { it.name }.join(', ')}"
 	}
 
 	/**
@@ -61,7 +60,7 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * @param object The object we are querying about.
 	 */
 	boolean supports(object) {
-		return forClass.clazz == object.getClass()
+		return forClass.javaClass == object.getClass()
 	}
 
 	/**
@@ -71,19 +70,11 @@ class AnnotationMarshaller<T> implements ObjectMarshaller<T> {
 	 * @param converter The converter instance that is performing the serialization.
 	 */
 	void marshalObject(object, T converter) {
-		if (deleted) throw new org.grails.web.converters.exceptions.ConverterException("Converter Configuration with name '${apiName}' was removed!")
+		if (deleted) throw new ConverterException("Converter Configuration with name '${apiName}' was removed!")
 		converter.build {
-			"${forClass.identifier.name}"(object."${forClass.identifier.name}") //always put the ID property into the object..
+			"${forClass.identity.name}"(object."${forClass.identity.name}") //always put the ID property into the object..
 			for (prop in propertiesToSerialize) {
-				if (prop.oneToMany) {
-					"$prop.name" {
-						for (child in object."${prop.name}") {
-							converter.convertAnother child
-						}
-					}
-				} else {
-					"$prop.name"(object."$prop.name")
-				}
+				"$prop.name"(object."$prop.name")
 			}
 		}
 	}

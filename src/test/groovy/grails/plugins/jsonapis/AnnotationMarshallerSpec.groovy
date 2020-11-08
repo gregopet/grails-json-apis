@@ -1,9 +1,11 @@
+package grails.plugins.jsonapis
+
 import grails.converters.JSON
 import grails.web.JSONBuilder
 import testapi.*
 
 import spock.lang.*
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 
 @Integration
 class AnnotationMarshallerSpec extends Specification {
@@ -114,7 +116,7 @@ class AnnotationMarshallerSpec extends Specification {
 			owner = roger
 			pet = roger.pets.first()
 		}
-		def response = JSON.parse(serializedObj.toString());
+		def response = JSON.parse(serializedObj.toString())
 		
 		then:
 		response.owner.twitterUsername

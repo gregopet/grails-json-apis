@@ -1,43 +1,49 @@
+package grails.plugins.jsonapis
+
 import grails.converters.JSON
 import grails.core.GrailsApplication
-import grails.core.GrailsClass
-import grails.core.GrailsDomainClass
-import org.grails.core.DefaultGrailsDomainClass
+import org.grails.datastore.mapping.keyvalue.mapping.config.KeyValueMappingContext
+import org.grails.datastore.mapping.keyvalue.mapping.config.KeyValuePersistentEntity
+import org.grails.datastore.mapping.model.MappingContext
+import org.grails.datastore.mapping.model.PersistentEntity
 import spock.lang.*
 import grails.plugins.jsonapis.*
 
 import testapi.*
-import org.grails.core.legacy.LegacyGrailsDomainClass
 
 class JsonApiRegistrySpec extends Specification {
-	GrailsDomainClass domainClass
+	PersistentEntity domainClass
 	GrailsApplication grailsApplication
 	JsonApiRegistry registry
+	MappingContext mappingContext
 	
 	def setup() {
-		domainClass = Mock(GrailsDomainClass)
+		mappingContext = new KeyValueMappingContext('pets')
+		domainClass = mappingContext.addPersistentEntity(Pet)
 		grailsApplication = Stub(GrailsApplication) {
-			getArtefacts('Domain') >> [domainClass]
 		}
+		grailsApplication.setMappingContext(mappingContext)
 		registry = new JsonApiRegistry()
 	}
 
 	def "during live reloads .updateMarshallers should mark registered but unannotated marshallers as deleted"() {
 		given: 'a registry with a registered marshaller not present in domain class annotations'
-		AnnotationMarshaller<JSON> marshaller = new AnnotationMarshaller<JSON>(new DefaultGrailsDomainClass(ViciousPet), "non-existant-api")
+		def user = mappingContext.addPersistentEntity(User)
+		AnnotationMarshaller<JSON> marshaller = new AnnotationMarshaller<JSON>(user, "non-existant-api")
 		def app = Stub(GrailsApplication)
 		registry.marshallersByApi['non-existant-api'].add(marshaller)
 		
 		when: 'updating marshallers from annotations'
 		registry.updateMarshallers(app)
 		
-		then: 'no-longer existing marshaller is marked as deleted'
+		then: 'a no-longer existing marshaller is marked as deleted'
 		marshaller.deleted
 	}
 
 	def ".registerMarshaller allows registering individual marshallers in unit tests"() {
 		given:
-		JsonApiRegistry.registerMarshaller("detailedInformation", ViciousPet)
+		PersistentEntity entity = mappingContext.addPersistentEntity(ViciousPet)
+		JsonApiRegistry.registerMarshaller("detailedInformation", entity as PersistentEntity[])
 
 		when:
 		String marshalledPet
@@ -54,7 +60,7 @@ class JsonApiRegistrySpec extends Specification {
 	@Ignore //it's hard to test this :(
 	def "during live reloads .updateMarshallers should add any annotated marshallers to the existing ones"() {
 		when: 'a class is scanned for declared APIs'
-		def anotherDomainClass = new LegacyGrailsDomainClass(User)
+		def anotherDomainClass = new KeyValuePersistentEntity(User, mappingContext)
 		grailsApplication.domainClasses = [domainClass, anotherDomainClass]
 		registry.updateMarshallers(grailsApplication)
 		
