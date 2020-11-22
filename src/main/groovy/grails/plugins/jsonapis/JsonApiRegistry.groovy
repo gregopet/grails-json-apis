@@ -1,13 +1,10 @@
 package grails.plugins.jsonapis
 
+import grails.converters.JSON
 import grails.core.GrailsApplication
-import grails.core.GrailsDomainClass
-import grails.core.GrailsDomainClassProperty
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log
-
-import grails.converters.JSON
-import org.grails.core.DefaultGrailsDomainClass
+import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.web.converters.configuration.DefaultConverterConfiguration
 
 /**
@@ -28,7 +25,7 @@ class JsonApiRegistry {
 	 * deleting existing (in case of a live reload).
 	 */
 	void updateMarshallers(GrailsApplication application) {
-		List<GrailsDomainClass> domainClasses = application.getArtefacts('Domain').toList() as List<GrailsDomainClass>
+		Collection<PersistentEntity> domainClasses = application.getMappingContext().getPersistentEntities()
 		def allApiNames = getAllApiNames(domainClasses)
 		
 		def newApis = allApiNames - marshallersByApi.keySet()
@@ -59,11 +56,11 @@ class JsonApiRegistry {
 	 * Finds all API names defined in all domain classes.
 	 * @return A set of all found namespace names.
 	 */
-	Set<String> getAllApiNames(List<GrailsDomainClass> domainClasses) {
+	Set<String> getAllApiNames(Collection<PersistentEntity> domainClasses) {
 		Set namespaces = []
-		domainClasses.each { GrailsDomainClass domainClass ->
-			domainClass.properties.each { GrailsDomainClassProperty groovyProperty ->
-				def declaredNamespaces = getPropertyAnnotationValue( domainClass.clazz, groovyProperty.name )?.value()
+		domainClasses.each { PersistentEntity domainClass ->
+			domainClass.persistentPropertyNames.each { propertyName ->
+				def declaredNamespaces = getPropertyAnnotationValue( domainClass.javaClass, propertyName )?.value()
 				declaredNamespaces?.each { apiNamespace -> namespaces << apiNamespace }
 			}
 		}
@@ -87,10 +84,10 @@ class JsonApiRegistry {
 	 * @param marshallerName Name of the marshaller to register.
 	 * @param domainClass Classes on which we want to register the marshaller.
 	 */
-	static void registerMarshaller(String marshallerName, Class... domainClasses) {
+	static void registerMarshaller(String marshallerName, PersistentEntity... domainClasses) {
 		JSON.createNamedConfig(marshallerName) { DefaultConverterConfiguration<JSON> cfg ->
-			for (Class clazz : domainClasses) {
-				def marshaller = new AnnotationMarshaller<JSON>(new DefaultGrailsDomainClass(clazz), marshallerName)
+			for (PersistentEntity domainClass : domainClasses) {
+				def marshaller = new AnnotationMarshaller<JSON>(domainClass, marshallerName)
 				cfg.registerObjectMarshaller(marshaller)
 			}
 		}

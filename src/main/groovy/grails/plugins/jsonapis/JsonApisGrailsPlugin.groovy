@@ -3,7 +3,7 @@ package grails.plugins.jsonapis
 import grails.plugins.Plugin
 
 class JsonApisGrailsPlugin extends Plugin {
-    def grailsVersion = "3.0 > *"
+    def grailsVersion = "4.0 > *"
     def pluginExcludes = [
         "**/views/**",
         "**/i18n/**",
